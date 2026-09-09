@@ -1,0 +1,81 @@
+{
+  "selected_experiment": "O10-BatchNorm",
+  "validation_threshold": 0.45,
+  "test_metrics": {
+    "accuracy": 0.7970191625266146,
+    "precision": 0.6229050279329609,
+    "recall": 0.5962566844919787,
+    "f1": 0.6092896174863388,
+    "roc_auc": 0.8418894830659536
+  },
+  "target_mapping": {
+    "No": 0,
+    "Yes": 1
+  },
+  "model_path": "models/churn_dnn_optimized.keras",
+  "preprocessor_path": "models/preprocessor_optimized.joblib",
+  "input_features": [
+    "SeniorCitizen",
+    "tenure",
+    "MonthlyCharges",
+    "TotalCharges",
+    "gender",
+    "Partner",
+    "Dependents",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "OnlineSecurity",
+    "OnlineBackup",
+    "DeviceProtection",
+    "TechSupport",
+    "StreamingTV",
+    "StreamingMovies",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod"
+  ],
+  "transformed_features": [
+    "SeniorCitizen",
+    "tenure",
+    "MonthlyCharges",
+    "TotalCharges",
+    "gender_Male",
+    "Partner_Yes",
+    "Dependents_Yes",
+    "PhoneService_Yes",
+    "MultipleLines_No phone service",
+    "MultipleLines_Yes",
+    "InternetService_Fiber optic",
+    "InternetService_No",
+    "OnlineSecurity_No internet service",
+    "OnlineSecurity_Yes",
+    "OnlineBackup_No internet service",
+    "OnlineBackup_Yes",
+    "DeviceProtection_No internet service",
+    "DeviceProtection_Yes",
+    "TechSupport_No internet service",
+    "TechSupport_Yes",
+    "StreamingTV_No internet service",
+    "StreamingTV_Yes",
+    "StreamingMovies_No internet service",
+    "StreamingMovies_Yes",
+    "Contract_One year",
+    "Contract_Two year",
+    "PaperlessBilling_Yes",
+    "PaymentMethod_Credit card (automatic)",
+    "PaymentMethod_Electronic check",
+    "PaymentMethod_Mailed check"
+  ],
+  "model_architecture": {
+    "units": [
+      64,
+      32,
+      16
+    ],
+    "dropout": 0.5,
+    "learning_rate": 0.0003,
+    "batch_norm": true,
+    "l2_rate": 0.0
+  }
+}

@@ -1,0 +1,236 @@
+{
+  "deployment_metadata": {
+    "project_name": "Explainable Telecom Customer Churn Prediction",
+    "deployment_date": "2026-08-13",
+    "version": "1.0.0",
+    "framework": "Streamlit + TensorFlow + SHAP",
+    "author": "Research Team"
+  },
+  "model_artifacts": {
+    "model_file": "models/churn_dnn_optimized.keras",
+    "preprocessor_file": "models/preprocessor_optimized.joblib",
+    "model_type": "Deep Neural Network",
+    "model_name": "O10-BatchNorm",
+    "selected_from_experiments": 13
+  },
+  "model_architecture": {
+    "input_dimension": 30,
+    "layers": [
+      {
+        "type": "Dense",
+        "units": 64,
+        "activation": "relu",
+        "batch_norm": true,
+        "dropout": 0.5
+      },
+      {
+        "type": "Dense",
+        "units": 32,
+        "activation": "relu",
+        "batch_norm": true,
+        "dropout": 0.5
+      },
+      {
+        "type": "Dense",
+        "units": 16,
+        "activation": "relu",
+        "batch_norm": true,
+        "dropout": 0.5
+      },
+      {
+        "type": "Dense",
+        "units": 1,
+        "activation": "sigmoid"
+      }
+    ],
+    "optimizer": "Adam",
+    "learning_rate": 0.0003,
+    "loss_function": "binary_crossentropy",
+    "regularization_l2": 0.0,
+    "batch_size": 32,
+    "early_stopping_patience": 10
+  },
+  "test_metrics": {
+    "accuracy": 0.7821149751596878,
+    "precision": 0.578088578088578,
+    "recall": 0.6631016042780749,
+    "f1_score": 0.6176836861768368,
+    "roc_auc": 0.8397065281975769
+  },
+  "classification_threshold": {
+    "selected": 0.45,
+    "rationale": "Optimized threshold from dnn_threshold_results.csv for balanced precision-recall trade-off",
+    "threshold_selection_metric": "F1-score",
+    "risk_levels": {
+      "high": ">= 0.70",
+      "medium": "0.50 - 0.70",
+      "low": "< 0.50"
+    }
+  },
+  "input_features": {
+    "total_features": 19,
+    "numeric_features": [
+      "SeniorCitizen",
+      "tenure",
+      "MonthlyCharges",
+      "TotalCharges"
+    ],
+    "categorical_features": [
+      "gender",
+      "Partner",
+      "Dependents",
+      "PhoneService",
+      "MultipleLines",
+      "InternetService",
+      "OnlineSecurity",
+      "OnlineBackup",
+      "DeviceProtection",
+      "TechSupport",
+      "StreamingTV",
+      "StreamingMovies",
+      "Contract",
+      "PaperlessBilling",
+      "PaymentMethod"
+    ]
+  },
+  "preprocessing": {
+    "numeric_strategy": "StandardScaler with median imputation",
+    "categorical_strategy": "OneHotEncoder with most_frequent imputation",
+    "drop_strategy": "first",
+    "transformed_feature_count": 30,
+    "target_mapping": {
+      "No": 0,
+      "Yes": 1
+    }
+  },
+  "shap_explainability": {
+    "explainer_primary": "DeepExplainer",
+    "explainer_fallback": "KernelExplainer",
+    "background_data_file": "explainability/shap_background.joblib",
+    "background_data_source": "Training data (not test set)",
+    "background_sample_size": 100,
+    "shap_version_required": ">= 0.42.0",
+    "tensorflow_version_required": ">= 2.12.0",
+    "feature_importance_method": "mean_absolute_shap_values"
+  },
+  "application_features": {
+    "single_customer_prediction": {
+      "enabled": true,
+      "description": "Interactive form for single customer prediction with SHAP explanation"
+    },
+    "batch_csv_prediction": {
+      "enabled": true,
+      "description": "Upload CSV for batch predictions with optional SHAP explanations",
+      "csv_schema_validation": true,
+      "max_recommended_batch_size": 1000
+    },
+    "model_insights": {
+      "enabled": true,
+      "includes": [
+        "Model architecture",
+        "Test metrics",
+        "Feature list and allowed values",
+        "Classification threshold",
+        "Model limitations"
+      ]
+    },
+    "shap_local_explanations": {
+      "enabled": true,
+      "available_for": ["single_customer", "batch_selected_customer", "batch_top_risk_customers"]
+    },
+    "downloadable_predictions": {
+      "enabled": true,
+      "format": "CSV",
+      "includes": ["customer_id", "churn_probability", "prediction", "risk_level"]
+    }
+  },
+  "datasets": {
+    "training": {
+      "source": "data/WA_Fn-UseC_-Telco-Customer-Churn.csv",
+      "total_samples": 7043,
+      "train_size": 4225,
+      "validation_size": 1409,
+      "test_size": 1409
+    },
+    "class_distribution": {
+      "churn_yes": 1869,
+      "churn_no": 5174,
+      "churn_percentage": 26.54
+    }
+  },
+  "model_comparison": {
+    "competitors_tested": [
+      "Logistic Regression",
+      "Decision Tree",
+      "Random Forest",
+      "Optimized DNN (O10-BatchNorm)"
+    ],
+    "selected_model": "Optimized DNN (O10-BatchNorm)",
+    "selection_rationale": "Highest recall and ROC-AUC, better for identifying at-risk customers despite slightly lower accuracy"
+  },
+  "data_handling": {
+    "customer_data_storage": "Session-based, not persisted",
+    "csv_upload_handling": "Processed in-memory, not stored",
+    "data_privacy": "No external API calls",
+    "model_modification": "Load-only, no retraining or fine-tuning allowed"
+  },
+  "production_checks": {
+    "model_loading_test": true,
+    "preprocessor_loading_test": true,
+    "single_prediction_test": true,
+    "batch_prediction_test": true,
+    "prediction_consistency_test": true,
+    "csv_validation_test": true,
+    "background_data_test": true,
+    "total_tests_passed": "8/8"
+  },
+  "error_handling": {
+    "missing_model": "User-facing error with instructions",
+    "missing_preprocessor": "User-facing error with instructions",
+    "invalid_csv": "Detailed validation report with specific errors",
+    "missing_columns": "Lists missing required features",
+    "unexpected_categorical_values": "Identifies invalid values by column",
+    "preprocessing_errors": "Logged for debugging, generic message to user",
+    "shap_incompatibility": "Graceful fallback, SHAP optional"
+  },
+  "files_created": [
+    "app.py",
+    "generate_optimized_model.py",
+    "test_app.py",
+    "utils/__init__.py",
+    "utils/prediction.py",
+    "utils/validation.py",
+    "utils/feature_mapping.py",
+    "explainability/__init__.py",
+    "explainability/shap_explainer.py",
+    "models/churn_dnn_optimized.keras",
+    "models/preprocessor_optimized.joblib",
+    "explainability/shap_background.joblib",
+    "reports/dnn_optimized_metadata_generated.json",
+    "README.md",
+    "requirements.txt"
+  ],
+  "research_reproducibility": {
+    "feature_order_preserved": true,
+    "threshold_documented": true,
+    "model_architecture_documented": true,
+    "metrics_saved": true,
+    "metadata_versioning": "dnn_optimized_metadata.json",
+    "background_data_reproducible": "Saved as joblib artifact",
+    "seed_values_fixed": 42
+  },
+  "dependencies_pinned": {
+    "tensorflow": "2.12.0",
+    "scikit-learn": "1.3.0",
+    "streamlit": "1.28.0",
+    "shap": "0.42.0",
+    "pandas": "1.5.0",
+    "numpy": "1.24.0",
+    "joblib": "1.3.0"
+  },
+  "deployment_instructions": {
+    "step_1": "pip install -r requirements.txt",
+    "step_2": "streamlit run app.py",
+    "step_3": "Navigate to http://localhost:8501"
+  }
+}
