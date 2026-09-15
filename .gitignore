@@ -1,56 +1,41 @@
 # Python
-
-**pycache**/
+__pycache__/
 *.py[cod]
+*.pyo
 
 # Virtual Environment
-
 venv/
 .venv/
 env/
 
 # Jupyter
-
 .ipynb_checkpoints/
 
 # VS Code
-
 .vscode/
 
 # PyCharm
-
 .idea/
 
 # OS files
-
 .DS_Store
 Thumbs.db
 
 # Environment variables
-
 .env
 
 # Logs
-
 *.log
 
-# Model files
-
-models/*.pkl
-models/*.joblib
-models/*.h5
-models/*.keras
-
-# TensorFlow
-
+# TensorFlow training logs (large, not needed)
 logs/
 tensorboard_logs/
 
 # Streamlit secrets
-
 .streamlit/secrets.toml
 
 # Temporary files
-
 *.tmp
 *.temp
+
+# Production model artifacts live in backend/models/ and are committed.

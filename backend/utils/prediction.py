@@ -3,7 +3,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from backend.config import MODEL_PATH, PREPROCESSOR_PATH, CLASSIFICATION_THRESHOLD
+from backend.config import MODEL_PATH, PREPROCESSOR_PATH, CLASSIFICATION_THRESHOLD, RISK_THRESHOLDS
 from backend.utils.feature_mapping import REQUIRED_FEATURES, NUMERIC_FEATURES
 
 
@@ -11,12 +11,17 @@ class ChurnPredictor:
     """
     Singleton predictor class that loads the Keras DNN model and Scikit-Learn
     preprocessor once at startup and provides single/batch inference.
+
+    Production model: O10-BatchNorm (Dense 64→32→16→1, BatchNorm, Dropout 0.5)
+    Classification threshold: 0.45 (confirmed by shap_metadata.json)
     """
 
-    def __init__(self, model_path=MODEL_PATH, preprocessor_path=PREPROCESSOR_PATH, threshold=CLASSIFICATION_THRESHOLD):
+    def __init__(self, model_path=MODEL_PATH, preprocessor_path=PREPROCESSOR_PATH,
+                 threshold=CLASSIFICATION_THRESHOLD, risk_thresholds=None):
         self.model_path = model_path
         self.preprocessor_path = preprocessor_path
         self.threshold = threshold
+        self.risk_thresholds = risk_thresholds or RISK_THRESHOLDS
         self.model = None
         self.preprocessor = None
         self._load_artifacts()
@@ -68,17 +73,20 @@ class ChurnPredictor:
         """
         df_prepared = self._prepare_dataframe(df)
         transformed = self.preprocessor.transform(df_prepared)
-        
+
         if hasattr(transformed, "toarray"):
             transformed = transformed.toarray()
-            
+
         return np.asarray(transformed, dtype=np.float32)
 
     def get_risk_level(self, probability):
-        """Categorize churn probability into risk tiers."""
-        if probability >= 0.70:
+        """Categorize churn probability into configurable risk tiers."""
+        high_threshold = self.risk_thresholds.get("high", 0.60)
+        medium_threshold = self.risk_thresholds.get("medium", 0.30)
+
+        if probability >= high_threshold:
             return "High Risk"
-        elif probability >= self.threshold:
+        elif probability >= medium_threshold:
             return "Medium Risk"
         else:
             return "Low Risk"
@@ -86,7 +94,7 @@ class ChurnPredictor:
     def predict_single(self, customer_dict):
         """
         Perform single customer churn prediction.
-        
+
         Returns dict:
             {
                 "churn_probability": float,
@@ -112,17 +120,17 @@ class ChurnPredictor:
     def predict_batch(self, df):
         """
         Perform batch churn prediction on a DataFrame.
-        
+
         Returns:
             pd.DataFrame with added columns: churn_probability, churn_prediction, risk_level
         """
         X_proc = self.transform_features(df)
         raw_preds = self.model.predict(X_proc, verbose=0).flatten()
-        
+
         result_df = df.copy()
         result_df["churn_probability"] = [round(float(p), 4) for p in raw_preds]
         result_df["churn_prediction"] = (result_df["churn_probability"] >= self.threshold).astype(int)
         result_df["churn_label"] = result_df["churn_prediction"].map({1: "Yes", 0: "No"})
         result_df["risk_level"] = [self.get_risk_level(p) for p in raw_preds]
 
-        return result_df
+        return result_df.sort_values("churn_probability", ascending=False).reset_index(drop=True)
